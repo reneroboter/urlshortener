@@ -4,7 +4,6 @@ import (
 	"crypto/sha1"
 	"encoding/hex"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -45,12 +44,7 @@ func isValidUrl(u string) bool {
 	return true
 }
 
-// todos & questions
-// todo memory management -> what is if the process reached his memory_limit in go?
-// q: What are nil errors?
-
 func main() {
-	fmt.Println("Server started!")
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("POST /shorten", func(w http.ResponseWriter, r *http.Request) {
@@ -68,11 +62,7 @@ func main() {
 			return
 		}
 
-		fmt.Println("Request")
-		fmt.Println(urlsMap)
-		fmt.Println(PostMessage)
 		hashedUrl := hashUrl(PostMessage.Url)
-		fmt.Println(hashedUrl)
 
 		_, ok := urlsMap[hashedUrl]
 		if ok {
@@ -101,10 +91,6 @@ func main() {
 			http.Error(w, "invalid id", http.StatusBadRequest)
 			return
 		}
-
-		fmt.Println("Request")
-		fmt.Println(urlsMap)
-		fmt.Println(hashedUrl)
 
 		redirectUrl, ok := urlsMap[hashedUrl]
 		if !ok {
