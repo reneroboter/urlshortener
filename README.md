@@ -42,3 +42,6 @@ And I'm happy to report that it worked out pretty well.
 
 - Memory management -> What is if the process reached his memory_limit in Go?
 - What are nil errors?
+
+## Ideas
+- analyze execution time, memory usage and CPU usage
