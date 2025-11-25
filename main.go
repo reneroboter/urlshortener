@@ -4,6 +4,7 @@ import (
 	"crypto/sha1"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -101,5 +102,9 @@ func main() {
 		http.Redirect(w, r, redirectUrl, http.StatusMovedPermanently)
 	})
 
-	http.ListenAndServe(":8888", mux)
+	err := http.ListenAndServe(":8888", mux)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 }
