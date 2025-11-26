@@ -45,62 +45,65 @@ func isValidUrl(u string) bool {
 	return true
 }
 
+func PostRequestHandler(w http.ResponseWriter, r *http.Request) {
+	decoder := json.NewDecoder(r.Body)
+	PostMessage := PostMessage{}
+
+	err := decoder.Decode(&PostMessage)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if !isValidUrl(PostMessage.Url) {
+		http.Error(w, "invalid URL format", http.StatusBadRequest)
+		return
+	}
+
+	hashedUrl := hashUrl(PostMessage.Url)
+
+	_, ok := urlsMap[hashedUrl]
+	if ok {
+		http.Error(w, "url already exists", http.StatusBadRequest)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	response := PostResponseMessage{
+		ID: hashedUrl,
+	}
+	urlsMap[hashedUrl] = PostMessage.Url
+
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
+func GetRequestHandler(w http.ResponseWriter, r *http.Request) {
+	hashedUrl := r.PathValue("hashedUrl")
+
+	if !isValidSHA1(hashedUrl) {
+		http.Error(w, "invalid id", http.StatusBadRequest)
+		return
+	}
+
+	redirectUrl, ok := urlsMap[hashedUrl]
+	if !ok {
+		http.Error(w, "not found", http.StatusNotFound)
+		return
+	}
+
+	http.Redirect(w, r, redirectUrl, http.StatusMovedPermanently)
+}
+
 func main() {
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("POST /shorten", func(w http.ResponseWriter, r *http.Request) {
-		decoder := json.NewDecoder(r.Body)
-		PostMessage := PostMessage{}
-
-		err := decoder.Decode(&PostMessage)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		if !isValidUrl(PostMessage.Url) {
-			http.Error(w, "invalid URL format", http.StatusBadRequest)
-			return
-		}
-
-		hashedUrl := hashUrl(PostMessage.Url)
-
-		_, ok := urlsMap[hashedUrl]
-		if ok {
-			http.Error(w, "url already exists", http.StatusBadRequest)
-			return
-		}
-
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-
-		response := PostResponseMessage{
-			ID: hashedUrl,
-		}
-		urlsMap[hashedUrl] = PostMessage.Url
-
-		if err := json.NewEncoder(w).Encode(response); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-	})
-
-	mux.HandleFunc("GET /{hashedUrl}", func(w http.ResponseWriter, r *http.Request) {
-		hashedUrl := r.PathValue("hashedUrl")
-
-		if !isValidSHA1(hashedUrl) {
-			http.Error(w, "invalid id", http.StatusBadRequest)
-			return
-		}
-
-		redirectUrl, ok := urlsMap[hashedUrl]
-		if !ok {
-			http.Error(w, "not found", http.StatusNotFound)
-			return
-		}
-
-		http.Redirect(w, r, redirectUrl, http.StatusMovedPermanently)
-	})
+	mux.HandleFunc("POST /shorten", PostRequestHandler)
+	mux.HandleFunc("GET /{hashedUrl}", GetRequestHandler)
 
 	err := http.ListenAndServe(":8888", mux)
 	if err != nil {
