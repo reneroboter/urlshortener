@@ -93,7 +93,7 @@ func Test_PostRequestHandler_ReturnBadRequestIfRecordExists(t *testing.T) {
 	mux := http.NewServeMux()
 	mux.HandleFunc("POST /shorten", PostRequestHandler)
 
-	req := httptest.NewRequest(http.MethodPost, "/shorten", bytes.NewBuffer([]byte(`{"url":"http://www.google.com"}`)))
+	req := httptest.NewRequest(http.MethodPost, "/shorten", bytes.NewBuffer([]byte(`{"url":"http://www.github.com"}`)))
 	rr := httptest.NewRecorder()
 
 	mux.ServeHTTP(rr, req)
@@ -102,11 +102,11 @@ func Test_PostRequestHandler_ReturnBadRequestIfRecordExists(t *testing.T) {
 		t.Errorf("expected 200, got %d", rr.Code)
 	}
 
-	if !strings.ContainsAny("738ddf35b3a85a7a6ba7b232bd3d5f1e4d284ad1", rr.Body.String()) {
-		t.Errorf("expected '738ddf35b3a85a7a6ba7b232bd3d5f1e4d284ad1', got '%s'", rr.Body.String())
+	if !strings.ContainsAny("2041ee3c75afc15ce115e52bca5cfe48c7abbc96", rr.Body.String()) {
+		t.Errorf("expected '2041ee3c75afc15ce115e52bca5cfe48c7abbc96', got '%s'", rr.Body.String())
 	}
 
-	req = httptest.NewRequest(http.MethodPost, "/shorten", bytes.NewBuffer([]byte(`{"url":"http://www.google.com"}`)))
+	req = httptest.NewRequest(http.MethodPost, "/shorten", bytes.NewBuffer([]byte(`{"url":"http://www.github.com"}`)))
 	rr = httptest.NewRecorder()
 
 	mux.ServeHTTP(rr, req)
