@@ -12,11 +12,11 @@ import (
 
 var urlsMap = make(map[string]string)
 
-type PostMessage struct {
-	Url string
+type PostRequest struct {
+	Url string `json:"url"`
 }
 
-type PostResponseMessage struct {
+type PostResponse struct {
 	ID string `json:"id"`
 }
 
@@ -30,8 +30,10 @@ func hashUrl(url string) string {
 	return hashedUrl
 }
 
+var sha1Regex = regexp.MustCompile(`^[a-fA-F0-9]{40}$`)
+
 func isValidSHA1(s string) bool {
-	return regexp.MustCompile(`^[a-fA-F0-9]{40}$`).MatchString(s)
+	return sha1Regex.MatchString(s)
 }
 
 func isValidUrl(u string) bool {
@@ -47,20 +49,20 @@ func isValidUrl(u string) bool {
 
 func PostRequestHandler(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
-	PostMessage := PostMessage{}
+	request := PostRequest{}
 
-	err := decoder.Decode(&PostMessage)
+	err := decoder.Decode(&request)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	if !isValidUrl(PostMessage.Url) {
+	if !isValidUrl(request.Url) {
 		http.Error(w, "invalid URL format", http.StatusBadRequest)
 		return
 	}
 
-	hashedUrl := hashUrl(PostMessage.Url)
+	hashedUrl := hashUrl(request.Url)
 
 	_, ok := urlsMap[hashedUrl]
 	if ok {
@@ -71,10 +73,10 @@ func PostRequestHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 
-	response := PostResponseMessage{
+	response := PostResponse{
 		ID: hashedUrl,
 	}
-	urlsMap[hashedUrl] = PostMessage.Url
+	urlsMap[hashedUrl] = request.Url
 
 	if err := json.NewEncoder(w).Encode(response); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
