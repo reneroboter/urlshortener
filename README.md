@@ -38,10 +38,15 @@ And I'm happy to report that it worked out pretty well.
 1. `http localhost:8888/eb43b895f40fbc0f0bdda29d3d52e58a53e2b4b8` -> Returns redirect to target url
 1. `http localhost:8888/129c0d99c6fca772c7a007844b8b71a9097d9915` -> Returns not found error
 
-## Questions 
 
-- Memory management -> What is if the process reached his memory_limit in Go?
-- What are nil errors?
-
-## Ideas
+## ToDos
 - analyze execution time, memory usage and CPU usage
+- add normalization layer to handle following edge cases:
+  - "https://example.com"
+  - "https://EXAMPLE.COM"
+  - "https://example.com/"
+  - "  https://example.com"
+  -  "https://example.com  "
+  -  "https://example.com\n"
+- add two-layer cache (memory, json file)
+- add mutexes 
