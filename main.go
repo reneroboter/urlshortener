@@ -6,8 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"net/url"
-	"regexp"
 )
 
 var urlsMap = make(map[string]string)
@@ -28,23 +26,6 @@ func hashUrl(url string) string {
 	hashedUrl := hex.EncodeToString(h.Sum(nil))
 
 	return hashedUrl
-}
-
-var sha1Regex = regexp.MustCompile(`^[a-fA-F0-9]{40}$`)
-
-func isValidSHA1(s string) bool {
-	return sha1Regex.MatchString(s)
-}
-
-func isValidUrl(u string) bool {
-	parsed, err := url.ParseRequestURI(u)
-	if err != nil {
-		return false
-	}
-	if parsed.Scheme == "" || parsed.Host == "" {
-		return false
-	}
-	return true
 }
 
 func PostRequestHandler(w http.ResponseWriter, r *http.Request) {
