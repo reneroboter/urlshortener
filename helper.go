@@ -1,6 +1,8 @@
 package main
 
 import (
+	"crypto/sha1"
+	"encoding/hex"
 	"net/url"
 	"regexp"
 )
@@ -20,4 +22,14 @@ func isValidUrl(u string) bool {
 		return false
 	}
 	return true
+}
+
+func hashUrl(url string) string {
+	unhashedUrl := url
+	h := sha1.New()
+	h.Write([]byte(unhashedUrl))
+
+	hashedUrl := hex.EncodeToString(h.Sum(nil))
+
+	return hashedUrl
 }

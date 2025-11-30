@@ -1,8 +1,6 @@
 package main
 
 import (
-	"crypto/sha1"
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -16,16 +14,6 @@ type PostRequest struct {
 
 type PostResponse struct {
 	ID string `json:"id"`
-}
-
-func hashUrl(url string) string {
-	unhashedUrl := url
-	h := sha1.New()
-	h.Write([]byte(unhashedUrl))
-
-	hashedUrl := hex.EncodeToString(h.Sum(nil))
-
-	return hashedUrl
 }
 
 func PostRequestHandler(w http.ResponseWriter, r *http.Request) {
