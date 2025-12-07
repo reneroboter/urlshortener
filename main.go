@@ -4,9 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"sync"
 )
 
-var urlsMap = make(map[string]string)
+var urlsMap = sync.Map{}
 
 type PostRequest struct {
 	Url string `json:"url"`
@@ -33,7 +34,7 @@ func PostRequestHandler(w http.ResponseWriter, r *http.Request) {
 
 	hashedUrl := hashUrl(request.Url)
 
-	_, ok := urlsMap[hashedUrl]
+	_, ok := urlsMap.Load(hashedUrl)
 	if ok {
 		http.Error(w, "url already exists", http.StatusBadRequest)
 		return
@@ -45,7 +46,7 @@ func PostRequestHandler(w http.ResponseWriter, r *http.Request) {
 	response := PostResponse{
 		ID: hashedUrl,
 	}
-	urlsMap[hashedUrl] = request.Url
+	urlsMap.Store(hashedUrl, request.Url)
 
 	if err := json.NewEncoder(w).Encode(response); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -61,13 +62,13 @@ func GetRequestHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	redirectUrl, ok := urlsMap[hashedUrl]
+	redirectUrl, ok := urlsMap.Load(hashedUrl)
 	if !ok {
 		http.Error(w, "not found", http.StatusNotFound)
 		return
 	}
 
-	http.Redirect(w, r, redirectUrl, http.StatusMovedPermanently)
+	http.Redirect(w, r, redirectUrl.(string), http.StatusMovedPermanently)
 }
 
 func main() {
