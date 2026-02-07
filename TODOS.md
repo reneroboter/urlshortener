@@ -1,3 +1,6 @@
 # ToDos
 - analyze execution time, memory usage and CPU usage
-- add two-layer cache (memory, json file)
+- add better errors
+- add logger
+- add franzgo
+- publish kafka events, during read and write operations
