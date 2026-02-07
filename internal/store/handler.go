@@ -2,7 +2,6 @@ package store
 
 import (
 	"errors"
-	"fmt"
 )
 
 type TwoLayerStore struct {
@@ -18,25 +17,35 @@ func NewTwoLayerStore() *TwoLayerStore {
 }
 
 func (t *TwoLayerStore) Put(code, url string) error {
+	// write to redis first; it's the source of truth (SSOT)
+	err1 := t.r.Put(code, url)
+
+	if err1 != nil {
+		return errors.New("code already exists")
+	}
+	// write to memory second as a best-effort cache to reduce read latency
+	_ = t.m.Put(code, url)
 
 	return nil
 }
 
 func (t *TwoLayerStore) Get(code string) (string, error) {
+	// check memory first, it's faster
 	url, err := t.m.Get(code)
 
 	if url != "" {
-		fmt.Println("memory found")
 		return url, nil
 	}
 
-	// check on code not found? more precise!
+	// TODO: only fallback on ErrNotFound, not on any error
 	if err != nil {
-		fmt.Println("redis not found")
+		// check redis second if the entry is not found in memory (redis is the SSOT)
 		url, err = t.r.Get(code)
 	}
 
 	if url != "" {
+		// backfill memory cache after a successful redis read
+		_ = t.m.Put(code, url)
 		return url, nil
 	}
 
