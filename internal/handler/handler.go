@@ -29,12 +29,12 @@ func PostRequestHandler(w http.ResponseWriter, r *http.Request) {
 
 	_, ok := store.UrlsMap.Load(hashedUrl)
 	if ok {
-		http.Error(w, "url already exists", http.StatusBadRequest)
+		http.Error(w, "url already exists", http.StatusConflict)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(http.StatusCreated)
 
 	response := PostResponse{
 		ID: hashedUrl,

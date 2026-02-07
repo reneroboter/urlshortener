@@ -1,52 +1,53 @@
-# URL Shortener (In-Memory)
+_# URL Shortener (In-Memory)
 
-## Description
+## API Specification
 
-I've asked ChatGPT for a mini project idea in Go. Creating an URL Shortener was one of its recommendations, and I thought it would be fun to try it out.
-And I'm happy to report that it worked out pretty well.
+### GET [/{hashedUrl}]
++ Parameters
+  + hashedUrl: `8ece61d2d42e578e86d9f95ad063cf36eb8e774d` (string, required)
++ Response 301 (text/html)
+  + Headers
+    Location: http://www.example.com
+  + Body:  <a href="http://www.example.com">Moved Permanently</a>.
++ Response 400 (text/plain)
+  + Body: invalid id
++ Response 404 (text/plain)
+  + Body: not_found
 
-## What you’ll learn
+#### Examples
 
-- HTTP server (net/http)
-- Structs + maps
-- JSON encoding
-- Routing basics
+1. `curl -i http://localhost:8888/8ece61d2d42e578e86d9f95ad063cf36eb8e774d`
+2. `curl -i http://localhost:8888/asd`
 
-## Tasks
+### POST [/shorten]
++ Request (application/json)
+    + Body: ```{ "url": "http://www.google.de" }```
++ Response 201 (application/json)
+    + Body:  ```{ "id": "..." }```
++ Response 400 (text/plain)
+    + Body: invalid URL format
++ Response 400 (text/plain)
+    + Body: json decoding error
++ Response 409 (text/plain)
+    + Body: url already exists
 
-- POST `/shorten` → returns a short ID
-- GET `/{id}` → redirects to original URL
-- Store everything in a map[string]string
+#### Examples
 
+1. ```bash
+   curl -i -X POST http://localhost:8888/shorten \
+    -H "Content-Type: application/json" \
+    -d '{"url":"http://www.google.de"}'
+    ```
+2. ```bash
+   curl -i -X POST http://localhost:8888/shorten \
+    -H "Content-Type: application/json" \
+    -d '{"url":"www.google.de"}'
+    ```
 ## Getting started
 
 1. `git clone git@github.com:reneroboter/urlshortener.git`
-1. `cd urlshortener`
-1. `go run main.go`
-
-## How to use?
-
-### Create record
-
-1. `http POST localhost:8888/shorten url=http://www.google.de` -> Returns a short ID (Hashed URL)
-1. `http POST localhost:8888/shorten url=www.google.de` -> Returns invalid URL error
-1. `http POST localhost:8888/shorten url=http://www.google.de`-> (Second post) Returns bad request error
-
-### Fetch record
-
-1. `http localhost:8888/asd` -> Returns bad request invalid id
-1. `http localhost:8888/eb43b895f40fbc0f0bdda29d3d52e58a53e2b4b8` -> Returns redirect to target url
-1. `http localhost:8888/129c0d99c6fca772c7a007844b8b71a9097d9915` -> Returns not found error
+2. `cd urlshortener`
+3. `docker build --tag urlshortener .`
+4. `docker run --publish 8888:8888 urlshortener`_
 
 
-## ToDos
-- analyze execution time, memory usage and CPU usage
-- add normalization layer to handle following edge cases:
-  - "https://example.com"
-  - "https://EXAMPLE.COM"
-  - "https://example.com/"
-  - "  https://example.com"
-  -  "https://example.com  "
-  -  "https://example.com\n"
-- add two-layer cache (memory, json file)
-- add mutexes 
