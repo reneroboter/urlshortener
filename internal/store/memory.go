@@ -5,10 +5,6 @@ import (
 	"sync"
 )
 
-type GeneralStoreInterface interface {
-	Put(code, url string) error
-	Get(code string) (string, error)
-}
 type InMemoryStore struct {
 	mu sync.RWMutex
 	m  map[string]string
