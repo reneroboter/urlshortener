@@ -9,6 +9,9 @@ services:
 
   redis:
     image: redis:alpine
+    environment:
+     REDIS_HOST: "redis:6379"
+     REDIS_PASSWORD: ""
 
 #  zookeeper:
 #    image: confluentinc/cp-zookeeper:7.6.0
