@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"strings"
-	"sync"
 	"testing"
 
 	"github.com/reneroboter/urlshortener/internal/store"
@@ -13,10 +12,12 @@ import (
 
 func Test_GetRequestHandler_ReturnsBadRequestForInvalidInput(t *testing.T) {
 	// todo research if data provider or similar exists
+	storeHandler := store.NewInMemoryStore()
 	req := httptest.NewRequest(http.MethodGet, "/asd", nil)
 	rr := httptest.NewRecorder()
 
-	GetRequestHandler(rr, req)
+	handler := GetRequestHandler(storeHandler)
+	handler.ServeHTTP(rr, req)
 
 	if rr.Code != http.StatusBadRequest {
 		t.Errorf("expected 400, got %d", rr.Code)
@@ -28,11 +29,12 @@ func Test_GetRequestHandler_ReturnsBadRequestForInvalidInput(t *testing.T) {
 }
 
 func Test_GetRequestHandler_ReturnsNotFound(t *testing.T) {
+	storeHandler := store.NewInMemoryStore()
 	req := httptest.NewRequest(http.MethodGet, "/eb43b895f40fbc0f0bdda29d3d52e58a53e2b4b8", nil)
 	rr := httptest.NewRecorder()
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("GET /{hashedUrl}", GetRequestHandler)
+	mux.HandleFunc("GET /{hashedUrl}", GetRequestHandler(storeHandler))
 
 	mux.ServeHTTP(rr, req)
 
@@ -42,13 +44,13 @@ func Test_GetRequestHandler_ReturnsNotFound(t *testing.T) {
 }
 
 func Test_GetRequestHandler_ReturnsRedirect(t *testing.T) {
-	store.UrlsMap = sync.Map{}
-	store.UrlsMap.Store("eb43b895f40fbc0f0bdda29d3d52e58a53e2b4b8", "http://www.google.com")
+	storeHandler := store.NewInMemoryStore()
+	storeHandler.Put("eb43b895f40fbc0f0bdda29d3d52e58a53e2b4b8", "http://www.google.com")
 	req := httptest.NewRequest(http.MethodGet, "/eb43b895f40fbc0f0bdda29d3d52e58a53e2b4b8", nil)
 	rr := httptest.NewRecorder()
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("GET /{hashedUrl}", GetRequestHandler)
+	mux.HandleFunc("GET /{hashedUrl}", GetRequestHandler(storeHandler))
 
 	mux.ServeHTTP(rr, req)
 
@@ -58,8 +60,9 @@ func Test_GetRequestHandler_ReturnsRedirect(t *testing.T) {
 }
 
 func Test_PostRequestHandler_ReturnsId(t *testing.T) {
+	storeHandler := store.NewInMemoryStore()
 	mux := http.NewServeMux()
-	mux.HandleFunc("POST /shorten", PostRequestHandler)
+	mux.HandleFunc("POST /shorten", PostRequestHandler(storeHandler))
 
 	req := httptest.NewRequest(http.MethodPost, "/shorten", bytes.NewBuffer([]byte(`{"url":"http://www.google.com"}`)))
 	rr := httptest.NewRecorder()
@@ -67,7 +70,7 @@ func Test_PostRequestHandler_ReturnsId(t *testing.T) {
 	mux.ServeHTTP(rr, req)
 
 	if rr.Code != http.StatusCreated {
-		t.Errorf("expected 200, got %d", rr.Code)
+		t.Errorf("expected 201, got %d", rr.Code)
 	}
 
 	if !strings.ContainsAny("738ddf35b3a85a7a6ba7b232bd3d5f1e4d284ad1", rr.Body.String()) {
@@ -76,8 +79,9 @@ func Test_PostRequestHandler_ReturnsId(t *testing.T) {
 }
 
 func Test_PostRequestHandler_BadRequest(t *testing.T) {
+	storeHandler := store.NewInMemoryStore()
 	mux := http.NewServeMux()
-	mux.HandleFunc("POST /shorten", PostRequestHandler)
+	mux.HandleFunc("POST /shorten", PostRequestHandler(storeHandler))
 
 	req := httptest.NewRequest(http.MethodPost, "/shorten", bytes.NewBuffer([]byte(`{"url":"www.google.com"}`)))
 	rr := httptest.NewRecorder()
@@ -94,8 +98,9 @@ func Test_PostRequestHandler_BadRequest(t *testing.T) {
 }
 
 func Test_PostRequestHandler_ReturnBadRequestIfRecordExists(t *testing.T) {
+	storeHandler := store.NewInMemoryStore()
 	mux := http.NewServeMux()
-	mux.HandleFunc("POST /shorten", PostRequestHandler)
+	mux.HandleFunc("POST /shorten", PostRequestHandler(storeHandler))
 
 	req := httptest.NewRequest(http.MethodPost, "/shorten", bytes.NewBuffer([]byte(`{"url":"http://www.github.com"}`)))
 	rr := httptest.NewRecorder()

@@ -5,5 +5,5 @@ type PostRequest struct {
 }
 
 type PostResponse struct {
-	code string `json:"code"`
+	Code string `json:"code"`
 }

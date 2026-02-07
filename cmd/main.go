@@ -5,14 +5,16 @@ import (
 	"net/http"
 
 	"github.com/reneroboter/urlshortener/internal/handler"
+	"github.com/reneroboter/urlshortener/internal/store"
 )
 
 func main() {
+	store := store.NewInMemoryStore()
 	fmt.Println("Start urlshortener")
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("POST /shorten", handler.PostRequestHandler)
-	mux.HandleFunc("GET /{hashedUrl}", handler.GetRequestHandler)
+	mux.HandleFunc("POST /shorten", handler.PostRequestHandler(store))
+	mux.HandleFunc("GET /{hashedUrl}", handler.GetRequestHandler(store))
 
 	err := http.ListenAndServe(":8888", mux)
 	if err != nil {
