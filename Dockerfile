@@ -10,6 +10,6 @@ COPY *.go ./
 
 RUN CGO_ENABLED=0 GOOS=linux go build -o /urlshortener
 
-EXPOSE 8080
+EXPOSE 8888
 
 CMD ["/urlshortener"]

@@ -18,6 +18,7 @@ type PostResponse struct {
 }
 
 func PostRequestHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Receive POST request")
 	decoder := json.NewDecoder(r.Body)
 	request := PostRequest{}
 
@@ -55,6 +56,7 @@ func PostRequestHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetRequestHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Receive GET request")
 	hashedUrl := r.PathValue("hashedUrl")
 
 	if !isValidSHA1(hashedUrl) {
@@ -72,6 +74,7 @@ func GetRequestHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	fmt.Println("Start urlshortener")
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("POST /shorten", PostRequestHandler)
