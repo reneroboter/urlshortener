@@ -1,4 +1,11 @@
-_# URL Shortener (In-Memory)
+# URL Shortener (In-Memory)
+
+## Getting started
+
+1. `git clone git@github.com:reneroboter/urlshortener.git`
+2. `cd urlshortener`
+3. `docker build --tag urlshortener .`
+4. `docker run --publish 8888:8888 urlshortener`
 
 ## API Specification
 
@@ -43,11 +50,5 @@ _# URL Shortener (In-Memory)
     -H "Content-Type: application/json" \
     -d '{"url":"www.google.de"}'
     ```
-## Getting started
-
-1. `git clone git@github.com:reneroboter/urlshortener.git`
-2. `cd urlshortener`
-3. `docker build --tag urlshortener .`
-4. `docker run --publish 8888:8888 urlshortener`_
 
 
