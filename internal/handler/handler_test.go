@@ -22,8 +22,8 @@ func Test_GetRequestHandler_ReturnsBadRequestForInvalidInput(t *testing.T) {
 		t.Errorf("expected 400, got %d", rr.Code)
 	}
 
-	if strings.TrimSpace(rr.Body.String()) != "invalid id" {
-		t.Errorf("expected 'invalid id', got '%s'", rr.Body.String())
+	if strings.TrimSpace(rr.Body.String()) != "invalid code" {
+		t.Errorf("expected 'invalid code', got '%s'", rr.Body.String())
 	}
 }
 

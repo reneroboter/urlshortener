@@ -15,13 +15,13 @@
 
 ### GET [/{hashedUrl}]
 + Parameters
-  + hashedUrl: `8ece61d2d42e578e86d9f95ad063cf36eb8e774d` (string, required)
+  + code: `8ece61d2d42e578e86d9f95ad063cf36eb8e774d` (string, required)
 + Response 301 (text/html)
   + Headers
     Location: http://www.example.com
   + Body:  <a href="http://www.example.com">Moved Permanently</a>.
 + Response 400 (text/plain)
-  + Body: invalid id
+  + Body: invalid code
 + Response 404 (text/plain)
   + Body: not_found
 
@@ -34,7 +34,7 @@
 + Request (application/json)
     + Body: ```{ "url": "http://www.google.de" }```
 + Response 201 (application/json)
-    + Body:  ```{ "id": "..." }```
+    + Body:  ```{ "code": "..." }```
 + Response 400 (text/plain)
     + Body: invalid URL format
 + Response 400 (text/plain)

@@ -1,41 +1,43 @@
 package store
 
 import (
-	"crypto/sha1"
 	"errors"
-	"fmt"
 	"sync"
 )
 
-var UrlsMap = sync.Map{}
-
-type StoreInterface interface {
-	Put(url string) (string, error)
+type GeneralStoreInterface interface {
+	Put(code, url string) error
 	Get(code string) (string, error)
 }
 type InMemoryStore struct {
-	m map[string]string
-}
-
-type FileStore struct {
-	m map[string]string
+	mu sync.RWMutex
+	m  map[string]string
 }
 
 func NewInMemoryStore() *InMemoryStore {
-	// todo how to ensure singleton?
-	return &InMemoryStore{m: make(map[string]string)}
+	return &InMemoryStore{
+		m: make(map[string]string),
+	}
 }
+func (s *InMemoryStore) Put(code, url string) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 
-func (s *InMemoryStore) Put(url string) (string, error) {
-	code := fmt.Sprintf("%x", sha1.Sum([]byte(url)))
+	if _, ok := s.m[code]; ok {
+		return errors.New("code already exists")
+	}
+
 	s.m[code] = url
-	return code, nil
+	return nil
 }
 
 func (s *InMemoryStore) Get(code string) (string, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
 	url, ok := s.m[code]
 	if !ok {
-		return "", errors.New("not found")
+		return "", errors.New("code not found")
 	}
 	return url, nil
 }

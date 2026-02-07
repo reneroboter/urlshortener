@@ -9,6 +9,8 @@ import (
 	"github.com/reneroboter/urlshortener/internal/store"
 )
 
+var storeHandler store.GeneralStoreInterface = store.NewInMemoryStore()
+
 func PostRequestHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Receive POST request")
 	decoder := json.NewDecoder(r.Body)
@@ -27,8 +29,8 @@ func PostRequestHandler(w http.ResponseWriter, r *http.Request) {
 
 	hashedUrl := helper.HashUrl(helper.NormalizeUrl(request.Url))
 
-	_, ok := store.UrlsMap.Load(hashedUrl)
-	if ok {
+	_, err = storeHandler.Get(hashedUrl)
+	if err == nil {
 		http.Error(w, "url already exists", http.StatusConflict)
 		return
 	}
@@ -37,9 +39,13 @@ func PostRequestHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 
 	response := PostResponse{
-		ID: hashedUrl,
+		code: hashedUrl,
 	}
-	store.UrlsMap.Store(hashedUrl, request.Url)
+
+	if err := storeHandler.Put(hashedUrl, request.Url); err != nil {
+		http.Error(w, err.Error(), http.StatusConflict)
+		return
+	}
 
 	if err := json.NewEncoder(w).Encode(response); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -52,15 +58,15 @@ func GetRequestHandler(w http.ResponseWriter, r *http.Request) {
 	hashedUrl := r.PathValue("hashedUrl")
 
 	if !helper.IsValidSHA1(hashedUrl) {
-		http.Error(w, "invalid id", http.StatusBadRequest)
+		http.Error(w, "invalid code", http.StatusBadRequest)
 		return
 	}
 
-	redirectUrl, ok := store.UrlsMap.Load(hashedUrl)
-	if !ok {
+	redirectUrl, err := storeHandler.Get(hashedUrl)
+	if err != nil {
 		http.Error(w, "not found", http.StatusNotFound)
 		return
 	}
 
-	http.Redirect(w, r, redirectUrl.(string), http.StatusMovedPermanently)
+	http.Redirect(w, r, redirectUrl, http.StatusMovedPermanently)
 }
