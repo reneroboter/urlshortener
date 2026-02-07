@@ -66,7 +66,7 @@ func Test_PostRequestHandler_ReturnsId(t *testing.T) {
 
 	mux.ServeHTTP(rr, req)
 
-	if rr.Code != http.StatusOK {
+	if rr.Code != http.StatusCreated {
 		t.Errorf("expected 200, got %d", rr.Code)
 	}
 
@@ -102,7 +102,7 @@ func Test_PostRequestHandler_ReturnBadRequestIfRecordExists(t *testing.T) {
 
 	mux.ServeHTTP(rr, req)
 
-	if rr.Code != http.StatusOK {
+	if rr.Code != http.StatusCreated {
 		t.Errorf("expected 200, got %d", rr.Code)
 	}
 
@@ -115,7 +115,7 @@ func Test_PostRequestHandler_ReturnBadRequestIfRecordExists(t *testing.T) {
 
 	mux.ServeHTTP(rr, req)
 
-	if rr.Code != http.StatusBadRequest {
+	if rr.Code != http.StatusConflict {
 		t.Errorf("expected 400, got %d", rr.Code)
 	}
 

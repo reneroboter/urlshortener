@@ -25,7 +25,7 @@ func PostRequestHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	hashedUrl := helper.HashUrl(request.Url)
+	hashedUrl := helper.HashUrl(helper.NormalizeUrl(request.Url))
 
 	_, ok := store.UrlsMap.Load(hashedUrl)
 	if ok {
