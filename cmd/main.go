@@ -9,7 +9,8 @@ import (
 )
 
 func main() {
-	store := store.NewInMemoryStore()
+	store := store.NewTwoLayerStore()
+	fmt.Println("two layer")
 	fmt.Println("Start urlshortener")
 	mux := http.NewServeMux()
 
