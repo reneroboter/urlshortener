@@ -7,6 +7,10 @@
 3. `docker build --tag urlshortener .`
 4. `docker run --publish 8888:8888 urlshortener`
 
+## Run tests locally
+1. `go build -v ./...`
+2. `go test -v ./...`
+
 ## API Specification
 
 ### GET [/{hashedUrl}]
