@@ -1,10 +1,13 @@
-package main
+package store
 
 import (
 	"crypto/sha1"
 	"errors"
 	"fmt"
+	"sync"
 )
+
+var UrlsMap = sync.Map{}
 
 type StoreInterface interface {
 	Put(url string) (string, error)

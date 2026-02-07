@@ -1,21 +1,13 @@
-package main
+package handler
 
 import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"sync"
+
+	"github.com/reneroboter/urlshortener/internal/helper"
+	"github.com/reneroboter/urlshortener/internal/store"
 )
-
-var urlsMap = sync.Map{}
-
-type PostRequest struct {
-	Url string `json:"url"`
-}
-
-type PostResponse struct {
-	ID string `json:"id"`
-}
 
 func PostRequestHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Receive POST request")
@@ -28,14 +20,14 @@ func PostRequestHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !isValidUrl(request.Url) {
+	if !helper.IsValidUrl(request.Url) {
 		http.Error(w, "invalid URL format", http.StatusBadRequest)
 		return
 	}
 
-	hashedUrl := hashUrl(request.Url)
+	hashedUrl := helper.HashUrl(request.Url)
 
-	_, ok := urlsMap.Load(hashedUrl)
+	_, ok := store.UrlsMap.Load(hashedUrl)
 	if ok {
 		http.Error(w, "url already exists", http.StatusBadRequest)
 		return
@@ -47,7 +39,7 @@ func PostRequestHandler(w http.ResponseWriter, r *http.Request) {
 	response := PostResponse{
 		ID: hashedUrl,
 	}
-	urlsMap.Store(hashedUrl, request.Url)
+	store.UrlsMap.Store(hashedUrl, request.Url)
 
 	if err := json.NewEncoder(w).Encode(response); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -59,30 +51,16 @@ func GetRequestHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Receive GET request")
 	hashedUrl := r.PathValue("hashedUrl")
 
-	if !isValidSHA1(hashedUrl) {
+	if !helper.IsValidSHA1(hashedUrl) {
 		http.Error(w, "invalid id", http.StatusBadRequest)
 		return
 	}
 
-	redirectUrl, ok := urlsMap.Load(hashedUrl)
+	redirectUrl, ok := store.UrlsMap.Load(hashedUrl)
 	if !ok {
 		http.Error(w, "not found", http.StatusNotFound)
 		return
 	}
 
 	http.Redirect(w, r, redirectUrl.(string), http.StatusMovedPermanently)
-}
-
-func main() {
-	fmt.Println("Start urlshortener")
-	mux := http.NewServeMux()
-
-	mux.HandleFunc("POST /shorten", PostRequestHandler)
-	mux.HandleFunc("GET /{hashedUrl}", GetRequestHandler)
-
-	err := http.ListenAndServe(":8888", mux)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
 }

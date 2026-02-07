@@ -1,4 +1,4 @@
-package main
+package handler
 
 import (
 	"bytes"
@@ -7,6 +7,8 @@ import (
 	"strings"
 	"sync"
 	"testing"
+
+	"github.com/reneroboter/urlshortener/internal/store"
 )
 
 func Test_GetRequestHandler_ReturnsBadRequestForInvalidInput(t *testing.T) {
@@ -40,8 +42,8 @@ func Test_GetRequestHandler_ReturnsNotFound(t *testing.T) {
 }
 
 func Test_GetRequestHandler_ReturnsRedirect(t *testing.T) {
-	urlsMap = sync.Map{}
-	urlsMap.Store("eb43b895f40fbc0f0bdda29d3d52e58a53e2b4b8", "http://www.google.com")
+	store.UrlsMap = sync.Map{}
+	store.UrlsMap.Store("eb43b895f40fbc0f0bdda29d3d52e58a53e2b4b8", "http://www.google.com")
 	req := httptest.NewRequest(http.MethodGet, "/eb43b895f40fbc0f0bdda29d3d52e58a53e2b4b8", nil)
 	rr := httptest.NewRecorder()
 

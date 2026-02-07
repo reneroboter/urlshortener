@@ -1,4 +1,4 @@
-package main
+package helper
 
 import (
 	"testing"
@@ -64,7 +64,7 @@ func Test_StringIsValidSHA1String(t *testing.T) {
 
 		t.Run(name, func(t *testing.T) {
 			t.Parallel() // speed up tests
-			result := isValidSHA1(test.sha1_string)
+			result := IsValidSHA1(test.sha1_string)
 			if result != test.expected {
 				t.Errorf("expected '%t', got '%t'", test.expected, result)
 			}
@@ -122,7 +122,7 @@ func Test_StringIsCorrectlyHashed(t *testing.T) {
 
 		t.Run(name, func(t *testing.T) {
 			t.Parallel() // speed up tests
-			result := hashUrl(test.url)
+			result := HashUrl(test.url)
 			if result != test.expected {
 				t.Errorf("expected '%s', got '%s'", test.expected, result)
 			}

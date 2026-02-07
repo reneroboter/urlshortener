@@ -1,4 +1,4 @@
-package main
+package helper
 
 import (
 	"crypto/sha1"
@@ -9,11 +9,11 @@ import (
 
 var sha1Regex = regexp.MustCompile(`^[a-fA-F0-9]{40}$`)
 
-func isValidSHA1(s string) bool {
+func IsValidSHA1(s string) bool {
 	return sha1Regex.MatchString(s)
 }
 
-func isValidUrl(u string) bool {
+func IsValidUrl(u string) bool {
 	parsed, err := url.ParseRequestURI(u)
 	if err != nil {
 		return false
@@ -24,7 +24,7 @@ func isValidUrl(u string) bool {
 	return true
 }
 
-func hashUrl(url string) string {
+func HashUrl(url string) string {
 	unhashedUrl := url
 	h := sha1.New()
 	h.Write([]byte(unhashedUrl))
