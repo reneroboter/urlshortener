@@ -2,7 +2,7 @@ package handler
 
 import (
 	"encoding/json"
-	"fmt"
+	"log/slog"
 	"net/http"
 
 	"github.com/reneroboter/urlshortener/internal/helper"
@@ -11,7 +11,6 @@ import (
 
 func PostRequestHandler(store store.GeneralStoreInterface) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println("Receive POST request")
 		decoder := json.NewDecoder(r.Body)
 		request := PostRequest{}
 
@@ -20,6 +19,7 @@ func PostRequestHandler(store store.GeneralStoreInterface) http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
+		slog.Info("[POST] Store URL", "url", request.Url)
 
 		if !helper.IsValidUrl(request.Url) {
 			http.Error(w, "invalid URL format", http.StatusBadRequest)
@@ -56,17 +56,17 @@ func PostRequestHandler(store store.GeneralStoreInterface) http.HandlerFunc {
 
 func GetRequestHandler(store store.GeneralStoreInterface) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println("Receive GET request")
-		hashedUrl := r.PathValue("hashedUrl")
+		code := r.PathValue("code")
+		slog.Info("[GET] Request URL", "code", code)
 
-		if !helper.IsValidSHA1(hashedUrl) {
-			http.Error(w, "invalid code", http.StatusBadRequest)
+		if !helper.IsValidSHA1(code) {
+			http.Error(w, ErrInvalidCode.Error(), http.StatusBadRequest)
 			return
 		}
 
-		redirectUrl, err := store.Get(hashedUrl)
+		redirectUrl, err := store.Get(code)
 		if err != nil {
-			http.Error(w, "not found", http.StatusNotFound)
+			http.Error(w, ErrNotFound.Error(), http.StatusNotFound)
 			return
 		}
 

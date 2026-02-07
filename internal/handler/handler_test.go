@@ -50,7 +50,7 @@ func Test_GetRequestHandler_ReturnsRedirect(t *testing.T) {
 	rr := httptest.NewRecorder()
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("GET /{hashedUrl}", GetRequestHandler(storeHandler))
+	mux.HandleFunc("GET /{code}", GetRequestHandler(storeHandler))
 
 	mux.ServeHTTP(rr, req)
 

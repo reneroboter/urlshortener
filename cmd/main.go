@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"log/slog"
 	"net/http"
 
 	"github.com/reneroboter/urlshortener/internal/handler"
@@ -10,16 +10,15 @@ import (
 
 func main() {
 	store := store.NewTwoLayerStore()
-	fmt.Println("two layer")
-	fmt.Println("Start urlshortener")
+	slog.Info("Start urlshortener")
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("POST /shorten", handler.PostRequestHandler(store))
-	mux.HandleFunc("GET /{hashedUrl}", handler.GetRequestHandler(store))
+	mux.HandleFunc("GET /{code}", handler.GetRequestHandler(store))
 
 	err := http.ListenAndServe(":8888", mux)
 	if err != nil {
-		fmt.Println(err)
+		slog.Error("Something went wrong", "err", err)
 		return
 	}
 }
