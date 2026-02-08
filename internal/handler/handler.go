@@ -1,15 +1,19 @@
 package handler
 
 import (
+	"context"
 	"encoding/json"
 	"log/slog"
 	"net/http"
+	"time"
 
+	"github.com/google/uuid"
 	"github.com/reneroboter/urlshortener/internal/helper"
 	"github.com/reneroboter/urlshortener/internal/store"
+	"github.com/twmb/franz-go/pkg/kgo"
 )
 
-func PostRequestHandler(store store.GeneralStoreInterface) http.HandlerFunc {
+func PostRequestHandler(store store.GeneralStoreInterface, kafka *kgo.Client) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		decoder := json.NewDecoder(r.Body)
 		request := PostRequest{}
@@ -51,10 +55,34 @@ func PostRequestHandler(store store.GeneralStoreInterface) http.HandlerFunc {
 			return
 		}
 
+		event := KafkaEvent{
+			EventID:    uuid.NewString(),
+			Code:       hashedUrl,
+			URL:        request.Url,
+			OccurredAt: time.Now().UnixMilli(),
+			Type:       "url_created",
+		}
+
+		payload, err := json.Marshal(event)
+
+		if err != nil {
+			slog.Error(err.Error())
+			return
+		}
+
+		record := &kgo.Record{
+			Value: payload,
+			Topic: "url-shortener-events",
+		}
+
+		if err := kafka.ProduceSync(context.Background(), record).FirstErr(); err != nil {
+			slog.Error(err.Error())
+			return
+		}
 	}
 }
 
-func GetRequestHandler(store store.GeneralStoreInterface) http.HandlerFunc {
+func GetRequestHandler(store store.GeneralStoreInterface, kafka *kgo.Client) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		code := r.PathValue("code")
 		slog.Info("[GET] Request URL", "code", code)
@@ -67,6 +95,31 @@ func GetRequestHandler(store store.GeneralStoreInterface) http.HandlerFunc {
 		redirectUrl, err := store.Get(code)
 		if err != nil {
 			http.Error(w, ErrNotFound.Error(), http.StatusNotFound)
+			return
+		}
+
+		event := KafkaEvent{
+			EventID:    uuid.NewString(),
+			Code:       code,
+			URL:        redirectUrl,
+			OccurredAt: time.Now().UnixMilli(),
+			Type:       "url_redirected",
+		}
+
+		payload, err := json.Marshal(event)
+
+		if err != nil {
+			slog.Error(err.Error())
+			return
+		}
+
+		record := &kgo.Record{
+			Value: payload,
+			Topic: "url-shortener-events",
+		}
+
+		if err := kafka.ProduceSync(context.Background(), record).FirstErr(); err != nil {
+			slog.Error(err.Error())
 			return
 		}
 
