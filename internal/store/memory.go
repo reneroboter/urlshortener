@@ -19,10 +19,6 @@ func (s *InMemoryStore) Put(code, url string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	if _, ok := s.m[code]; ok {
-		return errors.New("code already exists")
-	}
-
 	s.m[code] = url
 	return nil
 }

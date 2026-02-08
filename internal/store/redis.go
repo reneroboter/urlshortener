@@ -2,10 +2,8 @@ package store
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log/slog"
-	"net"
 	"sync"
 
 	"github.com/redis/go-redis/v9"
@@ -28,21 +26,11 @@ func (s *RedisStore) Put(code, url string) error {
 	defer s.mu.Unlock()
 	ctx := context.Background()
 
-	_, err := s.r.Get(ctx, code).Result()
-	if err != nil {
-		var dnsErr *net.DNSError
-		if errors.As(err, &dnsErr) {
-			slog.Error("[REDIS] Host is not available!")
-			return fmt.Errorf("[REDIS] Store is not available: %w", ErrStoreUnavailable)
-		}
-	}
-
-	_, err = s.r.Set(ctx, code, url, 0).Result()
+	_, err := s.r.SetNX(ctx, code, url, 0).Result()
 	if err != nil {
 		slog.Warn("[REDIS] Requested code is already stored", "code", code)
 		return fmt.Errorf("[REDIS] Requested code is already stored: %w", ErrAlreadyExists)
 	}
-	slog.Info("[REDIS] Requested code could be stored!", "code", code)
 	return nil
 }
 
