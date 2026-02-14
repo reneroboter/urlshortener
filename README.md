@@ -13,7 +13,6 @@
 
 ## Architecture
 ### Happy path: Request URL from app
-<iframe src="https://link.excalidraw.com/readonly/6uOMWR7VVFVw54savru1" width="100%" height="100%" style="border: none;"></iframe>
 ![happy path1: request url from app](/docs/happypath1.png)
 ### Happy path: Post URL to app
 ![happy path2: post url to app](/docs/happypath1.png)
