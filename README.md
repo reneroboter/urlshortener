@@ -11,6 +11,13 @@
 1. `go build -v ./...`
 2. `go test -v ./...`
 
+## Architecture
+### Happy path: Request URL from app
+<iframe src="https://link.excalidraw.com/readonly/6uOMWR7VVFVw54savru1" width="100%" height="100%" style="border: none;"></iframe>
+
+### Happy path: Post URL to app
+<iframe src="https://link.excalidraw.com/readonly/ckaUJpYi924oklEqUvn6" width="100%" height="100%" style="border: none;"></iframe>
+
 ## API Specification
 
 ### GET [/{hashedUrl}]
