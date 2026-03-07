@@ -4,24 +4,21 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/reneroboter/urlshortener/internal/handler"
-	"github.com/reneroboter/urlshortener/internal/store"
-	kafka "github.com/reneroboter/urlshortener/pkg/kafka"
+	"github.com/reneroboter/urlshortener/internal/application"
+	"github.com/reneroboter/urlshortener/internal/infrastructure"
+	"github.com/reneroboter/urlshortener/internal/interfaces"
 )
 
+var Store = infrastructure.NewShortUrlRepository()
+
 func main() {
-	store := store.NewTwoLayerStore()
-	kafkaClient, err := kafka.NewKafkaClient()
-	if err != nil {
-		slog.Error("Something went with kafka", "err", err)
-		panic(err)
-		return
-	}
+
+	shortURLService := application.NewShortURLService()
 	slog.Info("Start urlshortener")
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("POST /shorten", handler.PostRequestHandler(store, kafkaClient))
-	mux.HandleFunc("GET /{code}", handler.GetRequestHandler(store, kafkaClient))
+	mux.HandleFunc("POST /shorten", interfaces.PostCreateShortURLHandler(shortURLService))
+	mux.HandleFunc("GET /{code}", interfaces.GetRequestHandler(shortURLService))
 
 	err = http.ListenAndServe(":8888", mux)
 	if err != nil {

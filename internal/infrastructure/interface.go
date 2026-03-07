@@ -1,4 +1,4 @@
-package store
+package infrastructure
 
 type GeneralStoreInterface interface {
 	Put(code, url string) error

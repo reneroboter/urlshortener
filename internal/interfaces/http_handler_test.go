@@ -1,4 +1,4 @@
-package handler
+package interfaces
 
 import (
 	"bytes"
@@ -62,7 +62,7 @@ func Test_GetRequestHandler_ReturnsRedirect(t *testing.T) {
 func Test_PostRequestHandler_ReturnsId(t *testing.T) {
 	storeHandler := store.NewInMemoryStore()
 	mux := http.NewServeMux()
-	mux.HandleFunc("POST /shorten", PostRequestHandler(storeHandler))
+	mux.HandleFunc("POST /shorten", PostCreateShortURLHandler(storeHandler))
 
 	req := httptest.NewRequest(http.MethodPost, "/shorten", bytes.NewBuffer([]byte(`{"url":"http://www.google.com"}`)))
 	rr := httptest.NewRecorder()
@@ -81,7 +81,7 @@ func Test_PostRequestHandler_ReturnsId(t *testing.T) {
 func Test_PostRequestHandler_BadRequest(t *testing.T) {
 	storeHandler := store.NewInMemoryStore()
 	mux := http.NewServeMux()
-	mux.HandleFunc("POST /shorten", PostRequestHandler(storeHandler))
+	mux.HandleFunc("POST /shorten", PostCreateShortURLHandler(storeHandler))
 
 	req := httptest.NewRequest(http.MethodPost, "/shorten", bytes.NewBuffer([]byte(`{"url":"www.google.com"}`)))
 	rr := httptest.NewRecorder()
@@ -100,7 +100,7 @@ func Test_PostRequestHandler_BadRequest(t *testing.T) {
 func Test_PostRequestHandler_ReturnBadRequestIfRecordExists(t *testing.T) {
 	storeHandler := store.NewInMemoryStore()
 	mux := http.NewServeMux()
-	mux.HandleFunc("POST /shorten", PostRequestHandler(storeHandler))
+	mux.HandleFunc("POST /shorten", PostCreateShortURLHandler(storeHandler))
 
 	req := httptest.NewRequest(http.MethodPost, "/shorten", bytes.NewBuffer([]byte(`{"url":"http://www.github.com"}`)))
 	rr := httptest.NewRecorder()
