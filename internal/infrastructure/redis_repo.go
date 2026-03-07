@@ -10,18 +10,18 @@ import (
 	redisclient "github.com/reneroboter/urlshortener/pkg/redis"
 )
 
-type RedisStore struct {
+type RedisRepo struct {
 	mu sync.RWMutex
 	r  *redis.Client
 }
 
-func NewRedisStore() *RedisStore {
-	return &RedisStore{
+func NewRedisRepo() *RedisRepo {
+	return &RedisRepo{
 		r: redisclient.NewRedisClient(),
 	}
 }
 
-func (s *RedisStore) Put(code, url string) error {
+func (s *RedisRepo) Put(code, url string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	ctx := context.Background()
@@ -34,7 +34,7 @@ func (s *RedisStore) Put(code, url string) error {
 	return nil
 }
 
-func (s *RedisStore) Get(code string) (string, error) {
+func (s *RedisRepo) Get(code string) (string, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	ctx := context.Background()

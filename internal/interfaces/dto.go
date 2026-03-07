@@ -1,8 +1,7 @@
 package interfaces
 
 import (
-	"net/url"
-	"regexp"
+	"github.com/reneroboter/urlshortener/internal/domain"
 )
 
 type PostCreateShortURLRequest struct {
@@ -10,14 +9,7 @@ type PostCreateShortURLRequest struct {
 }
 
 func (r PostCreateShortURLRequest) Validate() bool {
-	parsed, err := url.ParseRequestURI(r.URL)
-	if err != nil {
-		return false
-	}
-	if parsed.Scheme == "" || parsed.Host == "" {
-		return false
-	}
-	return true
+	return domain.IsValidURL(r.URL)
 }
 
 type PostCreateShortURLResponse struct {
@@ -28,10 +20,8 @@ type GetShortURLRequest struct {
 	Code string
 }
 
-var sha1Regex = regexp.MustCompile(`^[a-fA-F0-9]{40}$`)
-
 func (r GetShortURLRequest) Validate() bool {
-	return sha1Regex.MatchString(r.Code)
+	return domain.IsValidCode(r.Code)
 }
 
 type KafkaEvent struct {

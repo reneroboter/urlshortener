@@ -5,17 +5,17 @@ import (
 	"sync"
 )
 
-type InMemoryStore struct {
+type InMemoryRepository struct {
 	mu sync.RWMutex
 	m  map[string]string
 }
 
-func NewInMemoryStore() *InMemoryStore {
-	return &InMemoryStore{
+func NewInMemoryStore() *InMemoryRepository {
+	return &InMemoryRepository{
 		m: make(map[string]string),
 	}
 }
-func (s *InMemoryStore) Put(code, url string) error {
+func (s *InMemoryRepository) Put(code, url string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -23,7 +23,7 @@ func (s *InMemoryStore) Put(code, url string) error {
 	return nil
 }
 
-func (s *InMemoryStore) Get(code string) (string, error) {
+func (s *InMemoryRepository) Get(code string) (string, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 

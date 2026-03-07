@@ -9,12 +9,18 @@ import (
 
 func NewShortURLService() ShortURLService {
 	return ShortURLService{
-		repo: *infrastructure.NewShortUrlRepository(),
+		repo: infrastructure.NewShortUrlRepository(),
+	}
+}
+
+func NewTestShortURLService() ShortURLService {
+	return ShortURLService{
+		repo: infrastructure.NewInMemoryStore(),
 	}
 }
 
 type ShortURLService struct {
-	repo infrastructure.ShortURLRepository
+	repo infrastructure.RepositoryInterface
 }
 
 func (s *ShortURLService) CreateShortURL(URL string) domain.ShortURL {
