@@ -1,22 +1,22 @@
-package store
+package infrastructure
 
 import (
 	"errors"
 )
 
-type TwoLayerStore struct {
+type ShortURLRepository struct {
 	m GeneralStoreInterface
 	r GeneralStoreInterface
 }
 
-func NewTwoLayerStore() *TwoLayerStore {
-	return &TwoLayerStore{
+func NewShortUrlRepository() *ShortURLRepository {
+	return &ShortURLRepository{
 		m: NewInMemoryStore(),
 		r: NewRedisStore(),
 	}
 }
 
-func (t *TwoLayerStore) Put(code, url string) error {
+func (t *ShortURLRepository) Put(code, url string) error {
 	// write to redis first; it's the source of truth (SSOT)
 	err1 := t.r.Put(code, url)
 
@@ -29,7 +29,7 @@ func (t *TwoLayerStore) Put(code, url string) error {
 	return nil
 }
 
-func (t *TwoLayerStore) Get(code string) (string, error) {
+func (t *ShortURLRepository) Get(code string) (string, error) {
 	// check memory first, it's faster
 	url, err := t.m.Get(code)
 
