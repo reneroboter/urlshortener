@@ -7,8 +7,8 @@ import (
 	"github.com/reneroboter/urlshortener/internal/infrastructure"
 )
 
-func NewShortURLService() *ShortURLService {
-	return &ShortURLService{
+func NewShortURLService() ShortURLService {
+	return ShortURLService{
 		repo: *infrastructure.NewShortUrlRepository(),
 	}
 }
