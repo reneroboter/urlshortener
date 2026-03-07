@@ -62,14 +62,10 @@ func Test_StringIsValidSHA1String(t *testing.T) {
 
 		t.Run(name, func(t *testing.T) {
 			t.Parallel() // speed up tests
-			result := IsValidSHA1(test.sha1_string)
+			result := IsValidCode(test.sha1_string)
 			if result != test.expected {
 				t.Errorf("expected '%t', got '%t'", test.expected, result)
 			}
 		})
 	}
-}
-
-func Test_StringIsCorrectUrl(t *testing.T) {
-	t.Skip()
 }

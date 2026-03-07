@@ -5,14 +5,14 @@ import (
 )
 
 type ShortURLRepository struct {
-	m GeneralStoreInterface
-	r GeneralStoreInterface
+	m RepositoryInterface
+	r RepositoryInterface
 }
 
 func NewShortUrlRepository() *ShortURLRepository {
 	return &ShortURLRepository{
 		m: NewInMemoryStore(),
-		r: NewRedisStore(),
+		r: NewRedisRepo(),
 	}
 }
 
