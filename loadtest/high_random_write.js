@@ -27,7 +27,7 @@ export default function () {
     });
 
     const res = http.post(
-        'http://127.0.0.1:8888/shorten',
+        'http://127.0.0.1:64419/shorten',
         payload,
         { headers: { 'Content-Type': 'application/json' } }
     );
