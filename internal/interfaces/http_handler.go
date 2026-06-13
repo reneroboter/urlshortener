@@ -23,7 +23,12 @@ func PostCreateShortURLHandler(s application.ShortURLService) http.HandlerFunc {
 			return
 		}
 
-		shortURL := s.CreateShortURL(request.URL)
+		shortURL, err := s.CreateShortURL(request.URL)
+
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusCreated)

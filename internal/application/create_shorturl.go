@@ -27,19 +27,22 @@ type ShortURLService struct {
 	generator infrastructure.CodeGenerator
 }
 
-func (s *ShortURLService) CreateShortURL(URL string) domain.ShortURL {
+func (s *ShortURLService) CreateShortURL(URL string) (domain.ShortURL, error) {
 	shortURL := domain.ShortURL{
 		URL:  URL,
 		Code: s.generator.GenerateCode(NormalizeUrl(URL)),
 	}
 
 	if err := s.repo.Put(shortURL.Code, shortURL.URL); err != nil {
-		slog.Error(err.Error())
+		slog.Error("failed to persist short URL",
+			"code", shortURL.Code,
+			"url", URL,
+			"error", err,
+		)
+		return shortURL, err
 	}
 
-	slog.Info(shortURL.URL)
-
-	return shortURL
+	return shortURL, nil
 }
 
 func (s *ShortURLService) ReturnShortURL(Code string) (error, domain.ShortURL) {

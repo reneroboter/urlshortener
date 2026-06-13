@@ -2,7 +2,6 @@ package repo
 
 import (
 	"errors"
-	"log/slog"
 )
 
 type ShortURLRepository struct {
@@ -20,7 +19,6 @@ func NewShortUrlRepository() *ShortURLRepository {
 func (t *ShortURLRepository) Put(code, url string) error {
 	// write to MySQL first; it's the source of truth (SSOT)
 	err1 := t.m.Put(code, url)
-	slog.Error(err1.Error())
 	if err1 != nil {
 		return errors.New("code already exists")
 	}
