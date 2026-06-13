@@ -5,9 +5,28 @@ services:
       - "8888:8888"
     depends_on:
       - redis
+      - mysql
     environment:
       REDIS_HOST: "redis:6379"
       REDIS_PASSWORD: ""
+      MYSQL_DATABASE: urlshortener
+      MYSQL_USER: urlshortener
+      MYSQL_PASSWORD: urlshortener
+      MYSQL_ADR: mysql
 
   redis:
     image: redis:alpine
+
+  mysql:
+    image: mysql:8.4
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: urlshortener
+      MYSQL_DATABASE: urlshortener
+      MYSQL_USER: urlshortener
+      MYSQL_PASSWORD: urlshortener
+    volumes:
+      - db:/var/lib/mysql
+volumes:
+  db:

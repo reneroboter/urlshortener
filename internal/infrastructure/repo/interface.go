@@ -1,4 +1,4 @@
-package infrastructure
+package repo
 
 type RepositoryInterface interface {
 	Put(code, url string) error

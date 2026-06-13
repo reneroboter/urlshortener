@@ -1,7 +1,8 @@
-package infrastructure
+package repo
 
 import (
 	"errors"
+	"log/slog"
 )
 
 type ShortURLRepository struct {
@@ -11,27 +12,27 @@ type ShortURLRepository struct {
 
 func NewShortUrlRepository() *ShortURLRepository {
 	return &ShortURLRepository{
-		m: NewInMemoryStore(),
+		m: NewMySqlStore(),
 		r: NewRedisRepo(),
 	}
 }
 
 func (t *ShortURLRepository) Put(code, url string) error {
-	// write to redis first; it's the source of truth (SSOT)
-	err1 := t.r.Put(code, url)
-
+	// write to MySQL first; it's the source of truth (SSOT)
+	err1 := t.m.Put(code, url)
+	slog.Error(err1.Error())
 	if err1 != nil {
 		return errors.New("code already exists")
 	}
 	// write to memory second as a best-effort cache to reduce read latency
-	_ = t.m.Put(code, url)
+	_ = t.r.Put(code, url)
 
 	return nil
 }
 
 func (t *ShortURLRepository) Get(code string) (string, error) {
-	// check memory first, it's faster
-	url, err := t.m.Get(code)
+	// check Redis first, it's faster
+	url, err := t.r.Get(code)
 
 	if url != "" {
 		return url, nil
@@ -40,11 +41,11 @@ func (t *ShortURLRepository) Get(code string) (string, error) {
 	// TODO: only fallback on ErrNotFound, not on any error
 	if err != nil {
 		// check redis second if the entry is not found in memory (redis is the SSOT)
-		url, err = t.r.Get(code)
+		url, err = t.m.Get(code)
 	}
 
 	if url != "" {
-		// backfill memory cache after a successful redis read
+		// backfill Redis cache after a successful MySQL read
 		_ = t.m.Put(code, url)
 		return url, nil
 	}

@@ -1,4 +1,4 @@
-package infrastructure
+package repo
 
 import (
 	"context"
@@ -7,6 +7,7 @@ import (
 	"sync"
 
 	"github.com/redis/go-redis/v9"
+	"github.com/reneroboter/urlshortener/internal/infrastructure"
 	redisclient "github.com/reneroboter/urlshortener/pkg/redis"
 )
 
@@ -29,7 +30,7 @@ func (s *RedisRepo) Put(code, url string) error {
 	_, err := s.r.SetNX(ctx, code, url, 0).Result()
 	if err != nil {
 		slog.Warn("[REDIS] Requested code is already stored", "code", code)
-		return fmt.Errorf("[REDIS] Requested code is already stored: %w", ErrAlreadyExists)
+		return fmt.Errorf("[REDIS] Requested code is already stored: %w", infrastructure.ErrAlreadyExists)
 	}
 	return nil
 }
@@ -41,7 +42,7 @@ func (s *RedisRepo) Get(code string) (string, error) {
 	url, err := s.r.Get(ctx, code).Result()
 	if err != nil {
 		slog.Warn("[REDIS] Requested code could not be found!")
-		return "", fmt.Errorf("[REDIS] Requested code could not be found: %w", ErrNotFound)
+		return "", fmt.Errorf("[REDIS] Requested code could not be found: %w", infrastructure.ErrNotFound)
 	}
 	return url, nil
 }
