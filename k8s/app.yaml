@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: url-shortener
 spec:
-  replicas: 2
+  replicas: 4
   selector:
     matchLabels:
       app: url-shortener
@@ -21,6 +21,11 @@ spec:
           env:
             - name: REDIS_HOST
               value: "redis:6379"
+          resources:
+            requests:
+              cpu: "100m"
+            limits:
+              cpu: "500m"
 ---
 apiVersion: v1
 kind: Service
@@ -33,3 +38,26 @@ spec:
     - port: 8888
       targetPort: 8888
   type: NodePort
+
+---
+
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: urlshortener-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: urlshortener
+
+  minReplicas: 2
+  maxReplicas: 10
+
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
