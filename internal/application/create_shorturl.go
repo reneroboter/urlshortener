@@ -20,13 +20,14 @@ func NewTestShortURLService() ShortURLService {
 }
 
 type ShortURLService struct {
-	repo infrastructure.RepositoryInterface
+	repo      infrastructure.RepositoryInterface
+	generator infrastructure.CodeGenerator
 }
 
 func (s *ShortURLService) CreateShortURL(URL string) domain.ShortURL {
 	shortURL := domain.ShortURL{
 		URL:  URL,
-		Code: HashUrl(NormalizeUrl(URL)),
+		Code: s.generator.GenerateCode(NormalizeUrl(URL)),
 	}
 
 	if err := s.repo.Put(shortURL.Code, shortURL.URL); err != nil {
