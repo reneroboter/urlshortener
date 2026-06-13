@@ -1,7 +1,7 @@
 CREATE TABLE short_url
 (
     id         BIGINT AUTO_INCREMENT PRIMARY KEY,
-    code       VARCHAR(16) NOT NULL UNIQUE,
+    code       VARCHAR(40) NOT NULL UNIQUE,
     url        TEXT        NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
