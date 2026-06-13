@@ -9,13 +9,15 @@ import (
 
 func NewShortURLService() ShortURLService {
 	return ShortURLService{
-		repo: infrastructure.NewShortUrlRepository(),
+		repo:      infrastructure.NewShortUrlRepository(),
+		generator: infrastructure.SHA1CodeGenerator{},
 	}
 }
 
 func NewTestShortURLService() ShortURLService {
 	return ShortURLService{
-		repo: infrastructure.NewInMemoryStore(),
+		repo:      infrastructure.NewInMemoryStore(),
+		generator: infrastructure.SHA1CodeGenerator{},
 	}
 }
 
@@ -33,6 +35,8 @@ func (s *ShortURLService) CreateShortURL(URL string) domain.ShortURL {
 	if err := s.repo.Put(shortURL.Code, shortURL.URL); err != nil {
 		slog.Error(err.Error())
 	}
+
+	slog.Info(shortURL.URL)
 
 	return shortURL
 }

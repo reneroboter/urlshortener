@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"io"
 	"log/slog"
 	"net"
 	"net/http"
@@ -42,7 +43,22 @@ func NewServeMux() *http.ServeMux {
 }
 
 func NewLogger() *slog.Logger {
-	return slog.New(slog.NewTextHandler(os.Stdout, nil))
+	logFile, err := os.OpenFile(
+		"app.log",
+		os.O_CREATE|os.O_WRONLY|os.O_APPEND,
+		0644,
+	)
+	if err != nil {
+		panic(err)
+	}
+
+	writer := io.MultiWriter(os.Stdout, logFile)
+
+	return slog.New(
+		slog.NewJSONHandler(writer, &slog.HandlerOptions{
+			Level: slog.LevelInfo,
+		}),
+	)
 }
 
 func main() {
