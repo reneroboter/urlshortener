@@ -17,7 +17,7 @@ func NewShortURLService() ShortURLService {
 
 func NewTestShortURLService() ShortURLService {
 	return ShortURLService{
-		repo:      repo.NewShortUrlRepository(),
+		repo:      repo.NewInMemoryStore(),
 		generator: infrastructure.SHA1CodeGenerator{},
 	}
 }
