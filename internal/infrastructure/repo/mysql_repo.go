@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"log/slog"
 
 	"github.com/reneroboter/urlshortener/internal/domain"
 	"github.com/reneroboter/urlshortener/pkg/mysql"
@@ -25,11 +24,10 @@ func (s *MySqlRepository) Put(code, url string) error {
 	if err != nil {
 		return fmt.Errorf("ShortURL: %v", err)
 	}
-	id, err := result.LastInsertId()
+	_, err = result.LastInsertId()
 	if err != nil {
 		return fmt.Errorf("ShortURL: %v", err)
 	}
-	slog.Info("LastInsertId: %d", id)
 	return nil
 }
 
@@ -41,7 +39,7 @@ func (s *MySqlRepository) Get(code string) (string, error) {
 		if errors.Is(err, sql.ErrNoRows) {
 			return "", errors.New("code not found")
 		}
-		return "", fmt.Errorf("ShortURL %d: %v", code, err)
+		return "", fmt.Errorf("ShortURL %s: %v", code, err)
 	}
 
 	return short.URL, nil
