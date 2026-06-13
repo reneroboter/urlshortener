@@ -5,24 +5,25 @@ import (
 
 	"github.com/reneroboter/urlshortener/internal/domain"
 	"github.com/reneroboter/urlshortener/internal/infrastructure"
+	"github.com/reneroboter/urlshortener/internal/infrastructure/repo"
 )
 
 func NewShortURLService() ShortURLService {
 	return ShortURLService{
-		repo:      infrastructure.NewShortUrlRepository(),
+		repo:      repo.NewShortUrlRepository(),
 		generator: infrastructure.SHA1CodeGenerator{},
 	}
 }
 
 func NewTestShortURLService() ShortURLService {
 	return ShortURLService{
-		repo:      infrastructure.NewInMemoryStore(),
+		repo:      repo.NewShortUrlRepository(),
 		generator: infrastructure.SHA1CodeGenerator{},
 	}
 }
 
 type ShortURLService struct {
-	repo      infrastructure.RepositoryInterface
+	repo      repo.RepositoryInterface
 	generator infrastructure.CodeGenerator
 }
 
