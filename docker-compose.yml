@@ -12,7 +12,7 @@ services:
       MYSQL_DATABASE: urlshortener
       MYSQL_USER: urlshortener
       MYSQL_PASSWORD: urlshortener
-      MYSQL_ADR: mysql
+      MYSQL_ADDR: mysql
 
   redis:
     image: redis:alpine
