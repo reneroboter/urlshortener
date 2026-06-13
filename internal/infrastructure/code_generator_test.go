@@ -52,7 +52,7 @@ func Test_StringIsCorrectlyHashed(t *testing.T) {
 
 		t.Run(name, func(t *testing.T) {
 			t.Parallel() // speed up tests
-			result := GenerateCode(test.url)
+			result := SHA1CodeGenerator{}.GenerateCode(test.url)
 			if result != test.expected {
 				t.Errorf("expected '%s', got '%s'", test.expected, result)
 			}
